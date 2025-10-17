@@ -1,0 +1,1 @@
+# spicak.speleojesenik.cz
