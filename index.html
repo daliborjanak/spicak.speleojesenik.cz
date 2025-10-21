@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Jeskyně Na Špičáku - speleojesenik.cz</title>
+    <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
     <style>
       body {
         overflow: hidden;
@@ -14,15 +15,94 @@
         width: 100%;
         height: 100%;
       }
+      #buttons {
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        z-index: 1000;
+        width: 160px;
+      }
+      #buttons button{
+        display: block;
+        margin: 5px;
+        padding: 5px;
+        width: 100%;
+        color: #fff;
+        background: #000;
+        border: 1px solid #fff;
+        cursor: pointer;
+      }
     </style>
 </head>
 <body>
+  <div id="buttons">
+  </div>
   <div class="sketchfab-embed-wrapper"> 
-    <iframe title="Jeskyně Na Špičáku" frameborder="0" allowfullscreen mozallowfullscreen="true" 
-         webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" 
-         xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share 
-         src="https://sketchfab.com/models/b8d3a72c454d4c0ea93c5d35fc0501ad/embed?autostart=1&transparent=1">
-     </iframe> 
+    <iframe src="" id="api-frame" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+    <script type="text/javascript">
+      let iframe = document.getElementById( 'api-frame' );
+      let uid = 'b8d3a72c454d4c0ea93c5d35fc0501ad';
+
+      const positions = [
+        {
+          'id': 'vchod',
+          'name': 'Vchod',
+          'position':  [-60.7621919650024, 5.080181050245461, 1.3993314728441333],
+          'target': [18.48496399618645, 1.413778873717202, -3.3790602619286383]
+        },{
+          'id': 'srdcova',
+          'name': 'Srdcová chodba',
+          'position': [-3.790821384776623, 12.973702189483586, 1.0131486741493747],
+          'target': [-6.705365839944066, -7.169334048301449, -4.42009835187747]
+        },
+        {
+          'id': 'vychod',
+          'name': 'Východ',
+          'position': [20.18041903577243, -37.531627064515995, 0.41489093371615615],
+          'target': [18.48496399618645, 1.413778873717202, -3.3790602619286383]
+        }
+      ];
+      const reset = {
+        'position':  [-26.505796579394556, -5.600886101481727, 85.63281804161099],
+        'target': [-24.27821682689928, 7.373126511632069, -4.3028290959614175]
+      }
+
+      let client = new Sketchfab( iframe );
+      client.init( uid, {
+          transparent: 1,
+          ui_stop: 0,
+          ui_theme: 'dark',
+          success: function onSuccess( api ){
+              api.start();
+              api.addEventListener( 'viewerready', function() {
+
+                api.addEventListener('camerastop', function() {
+                  api.getCameraLookAt(function(err, camera) {
+                    window.console.log(camera.position); // [x, y, z]
+                    window.console.log(camera.target); // [x, y, z]
+                  });
+                });
+
+              let buttonsEl = document.getElementById('buttons');
+              positions.forEach(position => {
+                let buttonEl = document.createElement('button');
+                buttonEl.id = position.id;
+                buttonEl.innerHTML = position.name;
+                buttonEl.addEventListener('click', () => {
+                  api.setCameraLookAt(reset.position, reset.target);
+                  setTimeout(() => {
+                    api.setCameraLookAt(position.position, position.target);          
+                  }, 1000);
+                });
+                buttonsEl.appendChild(buttonEl);
+              });
+            });
+          },
+          error: function onError() {
+              console.log( 'Viewer error' );
+          }
+      } );
+    </script>
   </div>
 </body>
 </html>
